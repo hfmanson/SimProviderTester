@@ -301,14 +301,14 @@ public class IsoAppletToken implements Token {
             int length;
             do {
                 // READ BINARY, P1=0x00, P2=0x00, ID -> read current EF from position 0.
-                CommandAPDU cmd = new CommandAPDU((byte) 0x00, (byte) 0xB0, (byte) (offset >> 8), (byte) (offset & 0xFF),0xC0);
+                CommandAPDU cmd = new CommandAPDU((byte) 0x00, (byte) 0xB0, (byte) (offset >> 8), (byte) (offset & 0xFF),0x100);
 
                 ResponseAPDU resp = mSmartcardIO.runAPDU(cmd);
                 respData = resp.getData();
                 length = respData.length;
                 System.arraycopy(respData, 0, data, offset, length);
                 offset += length;
-            } while (respData.length == 0xC0);
+            } while (respData.length == 0x100);
         } catch (CardException e) {
                 throw new PKCS15Exception("Error sending READ BINARY",e, PKCS15Exception.ERROR_TRANSPORT_ERROR);
             }

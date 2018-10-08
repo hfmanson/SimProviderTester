@@ -3,7 +3,7 @@ package nl.mansoft.simprovidertester;
 import android.test.ActivityInstrumentationTestCase2;
 
 public class ActivityInstrumentationTest extends ActivityInstrumentationTestCase2<MainActivity> {
-    private MainActivity mTestActivity;
+    protected MainActivity mTestActivity;
 
     public ActivityInstrumentationTest() {
         super(MainActivity.class);

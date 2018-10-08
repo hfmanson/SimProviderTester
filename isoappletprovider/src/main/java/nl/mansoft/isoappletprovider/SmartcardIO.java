@@ -16,7 +16,7 @@ import nl.mansoft.smartcardio.CardException;
 import nl.mansoft.smartcardio.CommandAPDU;
 import nl.mansoft.smartcardio.ResponseAPDU;
 
-public class SmartcardIO {
+public class SmartcardIO  implements SEService.CallBack{
     private final static String TAG = SmartcardIO.class.getSimpleName();
     public final static byte[] AID_ISOAPPLET = { (byte) 0xF2, (byte) 0x76, (byte) 0xA2, (byte) 0x88, (byte) 0xBC, (byte) 0xFB, (byte) 0xA6, (byte) 0x9D, (byte) 0x34, (byte) 0xF3, (byte) 0x10, (byte) 0x01 };
     // File system related INS:
@@ -37,54 +37,84 @@ public class SmartcardIO {
     public static final byte INS_GET_CHALLENGE = (byte) 0x84;
     public static final int SW_NO_ERROR = 0x9000;
 
-    public boolean debug = false;
-    private Token token;
-    private static SmartcardIO smartcardIO;
-
-
-    private Session session;
-    private Channel cardChannel;
+    public boolean mDebug = false;
+    private Token mToken;
+    private Session mSession;
+    private Channel mCardChannel;
     private SEService mSeService;
     private Reader mReader;
+    private byte[] mAid;
+    private boolean mReady;
+    private SEService.CallBack mCallback;
+
+    private static SmartcardIO sSmartcardIO;
 
     public void setupToken() {
-        token = new IsoAppletToken(this);
+        mToken = new IsoAppletToken(this);
     }
 
     public Token getToken() {
-        return token;
+        return mToken;
     }
 
-    public static SmartcardIO getInstance() {
-        if (smartcardIO == null) {
-                smartcardIO = new SmartcardIO();
+    public SmartcardIO(Context context, byte[] aid, SEService.CallBack callBack) {
+        mReady = false;
+        mAid = aid;
+        sSmartcardIO = this;
+        mCallback = callBack;
+        try {
+            setup(context, this);
+            setupToken();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return smartcardIO;
+    }
+
+
+    public static SmartcardIO getInstance() {
+        return sSmartcardIO;
     }
 
     public void showCommandApduInfo(CommandAPDU commandAPDU) {
+        if (mDebug) {
             String msg = "command: CLA: " + Util.hex2(commandAPDU.getCLA()) + ", INS: " + Util.hex2(commandAPDU.getINS()) + ", P1: " + Util.hex2(commandAPDU.getP1()) + ", P2: " + Util.hex2(commandAPDU.getP2());
             int nc = commandAPDU.getNc();
             if (nc > 0) {
                 msg += ", Nc: " + Util.hex2(nc) + ", data: " + Util.ByteArrayToHexString(commandAPDU.getData());
             }
             Log.d(TAG, msg + ", Ne: " + Util.hex2(commandAPDU.getNe()));
+        }
     }
 
     public void showResponseApduInfo(ResponseAPDU responseAPDU) {
-        int status = responseAPDU.getSW();
-        if (status == SW_NO_ERROR) {
-            byte[] data = responseAPDU.getData();
-            Log.d(TAG, "answer: " + responseAPDU.toString() + ", data: " + Util.ByteArrayToHexString(data));
-        } else {
-            Log.e(TAG, "ERROR: status: " + String.format("%04X", status));
+        if (mDebug) {
+            int status = responseAPDU.getSW();
+            if (status == SW_NO_ERROR || responseAPDU.getSW1() == 0x61) {
+                byte[] data = responseAPDU.getData();
+                Log.d(TAG, "answer: " + responseAPDU.toString() + ", data: " + Util.ByteArrayToHexString(data));
+            } else {
+                Log.e(TAG, "ERROR: status: " + String.format("%04X", status));
+            }
+        }
+    }
+
+    private void waitReady() {
+        synchronized (this) {
+            while (!mReady) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     public ResponseAPDU runAPDU(CommandAPDU c) throws CardException {
         try {
             showCommandApduInfo(c);
-            byte[] result = cardChannel.transmit(c.getBytes());
+            waitReady();
+            byte[] result = mCardChannel.transmit(c.getBytes());
             ResponseAPDU responseAPDU = new ResponseAPDU(result);
             showResponseApduInfo(responseAPDU);
             return responseAPDU;
@@ -94,12 +124,14 @@ public class SmartcardIO {
     }
 
     public void runAPDU(final CommandAPDU c, final TransmitCallback callback) throws CardException {
+        showCommandApduInfo(c);
         final byte[] bytes = c.getBytes();
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    byte[] result = cardChannel.transmit(bytes);
+                    waitReady();
+                    byte[] result = mCardChannel.transmit(bytes);
                     ResponseAPDU responseAPDU = new ResponseAPDU(result);
                     showResponseApduInfo(responseAPDU);
                     callback.callBack(responseAPDU);
@@ -128,6 +160,8 @@ public class SmartcardIO {
     }
 
     public void teardown() {
+        waitReady();
+        sSmartcardIO = null;
         closeChannel();
 
         getFirstReader();
@@ -144,16 +178,16 @@ public class SmartcardIO {
     }
 
     public void closeChannel() {
-        if (cardChannel != null) {
-            cardChannel.close();
-            cardChannel = null;
+        if (mCardChannel != null) {
+            mCardChannel.close();
+            mCardChannel = null;
         }
     }
 
     public byte[] openChannel(byte aid[]) throws Exception {
         closeChannel();
-        cardChannel = session.openLogicalChannel(aid);
-        return cardChannel.getSelectResponse();
+        mCardChannel = mSession.openLogicalChannel(aid);
+        return mCardChannel.getSelectResponse();
     }
 
     public static String hex2(int hex) {
@@ -178,7 +212,7 @@ public class SmartcardIO {
         getFirstReader();
         if (mReader != null) {
             Log.d(TAG, "Create Session from the first reader");
-            session = mReader.openSession();
+            mSession = mReader.openSession();
         }
     }
 
@@ -210,7 +244,7 @@ public class SmartcardIO {
         boolean result = false;
         try {
             CommandAPDU commandApdu = new CommandAPDU(0x00, INS_MANAGE_SECURITY_ENVIRONMENT, 0x41, 0xb6, new byte[]{(byte) 0x80, (byte) 0x01, (byte) 0x11, (byte) 0x81, (byte) 0x02, (byte) 0x50, (byte) 0x15, (byte) 0x84, (byte) 0x01, keyReference});
-            ResponseAPDU responseApdu = smartcardIO.runAPDU(commandApdu);
+            ResponseAPDU responseApdu = sSmartcardIO.runAPDU(commandApdu);
             result = responseApdu.getSW() == SW_NO_ERROR;
         } catch (CardException ex) {
         }
@@ -265,4 +299,23 @@ public class SmartcardIO {
     }
 
 
+    @Override
+    public void serviceConnected(SEService seService) {
+        Log.i(TAG, "serviceConnected()");
+        try {
+            setSession();
+            if (mAid != null) {
+                openChannel(mAid);
+            }
+            synchronized (this) {
+                mReady = true;
+                notifyAll();
+            }
+            if (mCallback != null) {
+                mCallback.serviceConnected(seService);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

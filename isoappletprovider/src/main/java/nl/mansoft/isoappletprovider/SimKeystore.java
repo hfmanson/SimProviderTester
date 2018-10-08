@@ -46,6 +46,7 @@ public class SimKeystore extends KeyStoreSpi {
     
     public SimKeystore() {
         smartcardIO = SmartcardIO.getInstance();
+        smartcardIO.mDebug = true;
     }
 
     public static String getType() {
