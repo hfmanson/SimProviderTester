@@ -299,16 +299,18 @@ public class IsoAppletToken implements Token {
         try {
             byte[] respData = null;
             int length;
+            boolean cont = false;
             do {
                 // READ BINARY, P1=0x00, P2=0x00, ID -> read current EF from position 0.
                 CommandAPDU cmd = new CommandAPDU((byte) 0x00, (byte) 0xB0, (byte) (offset >> 8), (byte) (offset & 0xFF),0x100);
 
                 ResponseAPDU resp = mSmartcardIO.runAPDU(cmd);
                 respData = resp.getData();
+                cont = resp.getSW() != PKCS15Exception.ERROR_OK;
                 length = respData.length;
                 System.arraycopy(respData, 0, data, offset, length);
                 offset += length;
-            } while (respData.length == 0x100);
+            } while (respData.length == 0x100 && cont);
         } catch (CardException e) {
                 throw new PKCS15Exception("Error sending READ BINARY",e, PKCS15Exception.ERROR_TRANSPORT_ERROR);
             }
