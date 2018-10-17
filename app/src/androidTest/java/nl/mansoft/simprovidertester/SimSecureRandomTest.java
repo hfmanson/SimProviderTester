@@ -7,12 +7,9 @@ import java.security.SecureRandom;
 
 import nl.mansoft.isoappletprovider.Util;
 
-public class SimSecureRandomTest extends SimTest {
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
+import static org.junit.Assert.assertEquals;
 
+public class SimSecureRandomTest extends SimTest {
     public static void printRandom(byte random[]) {
         System.out.println(Util.ByteArrayToHexString(random));
     }

@@ -72,7 +72,8 @@ public class SmartcardIO  implements SEService.CallBack{
 
 
     public static SmartcardIO getInstance() {
-        return sSmartcardIO;
+        // only return sSmartcardIO when session is available
+        return sSmartcardIO != null && sSmartcardIO.mSession != null ? sSmartcardIO : null;
     }
 
     public void showCommandApduInfo(CommandAPDU commandAPDU) {
@@ -98,7 +99,7 @@ public class SmartcardIO  implements SEService.CallBack{
         }
     }
 
-    private void waitReady() {
+    public void waitReady() {
         synchronized (this) {
             while (!mReady) {
                 try {
@@ -298,24 +299,22 @@ public class SmartcardIO  implements SEService.CallBack{
         return signature;
     }
 
+    public void setSessionAndOpenChannel() throws Exception {
+        setSession();
+        if (mAid != null) {
+            openChannel(mAid);
+        }
+    }
 
     @Override
     public void serviceConnected(SEService seService) {
         Log.i(TAG, "serviceConnected()");
-        try {
-            setSession();
-            if (mAid != null) {
-                openChannel(mAid);
-            }
-            synchronized (this) {
-                mReady = true;
-                notifyAll();
-            }
-            if (mCallback != null) {
-                mCallback.serviceConnected(seService);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        synchronized (this) {
+            mReady = true;
+            notifyAll();
+        }
+        if (mCallback != null) {
+            mCallback.serviceConnected(seService);
         }
     }
 }

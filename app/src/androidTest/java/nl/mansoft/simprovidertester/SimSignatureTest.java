@@ -18,12 +18,12 @@ import java.security.cert.CertificateException;
 import nl.mansoft.isoappletprovider.SimKeystore;
 import nl.mansoft.isoappletprovider.Util;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 
 public class SimSignatureTest extends SimTest {
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
     /**
      * Test of initSign, update, and sign method, of class SimSignature.
      * @throws java.security.NoSuchAlgorithmException
@@ -54,6 +54,7 @@ public class SimSignatureTest extends SimTest {
                 signSignature.initSign(privatekey);
                 signSignature.update(random);
                 byte[] signature = signSignature.sign();
+                assertNotNull(signature);
                 System.out.println("signature: " + Util.ByteArrayToHexString(signature));
 
                 Certificate certificate = ks.getCertificate(alias);

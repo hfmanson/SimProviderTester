@@ -1,31 +1,24 @@
 package nl.mansoft.simprovidertester;
 
-import android.test.ActivityInstrumentationTestCase2;
+import android.support.test.filters.LargeTest;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
 
-public class ActivityInstrumentationTest extends ActivityInstrumentationTestCase2<MainActivity> {
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.runner.RunWith;
+
+@RunWith(AndroidJUnit4.class)
+@LargeTest
+public class ActivityInstrumentationTest  {
     protected MainActivity mTestActivity;
 
-    public ActivityInstrumentationTest() {
-        super(MainActivity.class);
-    }
+    @Rule
+    public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(
+            MainActivity.class);
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
-        // Starts the activity under test using the default Intent with:
-        // action = {@link Intent#ACTION_MAIN}
-        // flags = {@link Intent#FLAG_ACTIVITY_NEW_TASK}
-        // All other fields are null or empty.
-        mTestActivity = getActivity();
-    }
-
-    /**
-     * Test if the test fixture has been set up correctly.
-     */
-    public void testPreconditions() {
-        //Try to add a message to add context to your assertions. These messages will be shown if
-        //a tests fails and make it easy to understand why a test failed
-        assertNotNull("mTestActivity is null", mTestActivity);
+    @Before
+    public void afterActivityLaunched() {
+        mTestActivity = mActivityRule.getActivity();
     }
 }

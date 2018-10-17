@@ -22,12 +22,10 @@ import javax.crypto.NoSuchPaddingException;
 import nl.mansoft.isoappletprovider.SimKeystore;
 import nl.mansoft.smartcardio.CardException;
 
-public class SimCipherTest extends SimTest {
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+public class SimCipherTest extends SimTest {
     /**
      * Test of doFinal method, of class SimCipher.
      *
@@ -40,7 +38,7 @@ public class SimCipherTest extends SimTest {
         if (alias != null) {
             SecureRandom secureRandom = SecureRandom.getInstance("SIM-PRNG");
             byte[] random = secureRandom.generateSeed(128);
-
+            assertNotNull(random);
             KeyStore ks = KeyStore.getInstance(SimKeystore.getType());
             ks.load(null, new char[]{'1', '2', '3', '4'});
             System.out.println(ks.getType());

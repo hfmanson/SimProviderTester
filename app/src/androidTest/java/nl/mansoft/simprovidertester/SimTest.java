@@ -1,5 +1,9 @@
 package nl.mansoft.simprovidertester;
 
+import org.junit.After;
+import org.junit.Before;
+import static org.junit.Assert.fail;
+
 import java.security.Provider;
 import java.security.Security;
 
@@ -10,21 +14,27 @@ public class SimTest extends ActivityInstrumentationTest {
     private Provider mProvider;
     private SmartcardIO mSmartcardIO;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void afterActivityLaunched() {
+        super.afterActivityLaunched();
         mSmartcardIO = new SmartcardIO(mTestActivity, SmartcardIO.AID_ISOAPPLET, null);
+        mSmartcardIO.waitReady();
+        try {
+            mSmartcardIO.setSessionAndOpenChannel();
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
         mProvider = new SimProvider();
         Security.addProvider(mProvider);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         mSmartcardIO.teardown();
-        super.tearDown();
     }
 
     protected Provider getProvider() {
         return mProvider;
     }
+
 }

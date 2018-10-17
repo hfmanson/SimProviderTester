@@ -31,7 +31,6 @@ import org.opensc.pkcs15.asn1.sequence.SequenceOf;
 import org.opensc.pkcs15.token.PathHelper;
 import org.opensc.pkcs15.token.Token;
 import org.opensc.pkcs15.token.TokenContext;
-import org.opensc.pkcs15.token.TokenFactory;
 import org.opensc.pkcs15.token.TokenPath;
 
 public class SimKeystore extends KeyStoreSpi {
@@ -46,7 +45,9 @@ public class SimKeystore extends KeyStoreSpi {
     
     public SimKeystore() {
         smartcardIO = SmartcardIO.getInstance();
-        smartcardIO.mDebug = true;
+        if (smartcardIO != null) {
+            smartcardIO.mDebug = true;
+        }
     }
 
     public static String getType() {
@@ -172,7 +173,10 @@ public class SimKeystore extends KeyStoreSpi {
     }
 
     @Override
-    public void engineLoad(InputStream stream, char[] password) throws IOException, NoSuchAlgorithmException, CertificateException {
+    public void engineLoad(InputStream stream, char[] password) throws IOException {
+        if (smartcardIO == null) {
+            throw new IOException("smartcardIO not available");
+        }
         this.password = new String(password).getBytes();
         verify();
         Token token = smartcardIO.getToken();

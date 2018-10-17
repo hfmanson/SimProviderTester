@@ -23,11 +23,13 @@ public class SimSecureRandom extends SecureRandomSpi {
     protected void engineNextBytes(byte[] bytes) {
         int length = bytes.length;
         byte data[] = engineGenerateSeed(length);
-        System.arraycopy(data, 0, bytes, 0, length);
+        if (data != null) {
+            System.arraycopy(data, 0, bytes, 0, length);
+        }
     }
 
     @Override
     protected byte[] engineGenerateSeed(int numBytes) {
-        return smartcardIO.getChallenge(numBytes);
+        return smartcardIO == null ? null : smartcardIO.getChallenge(numBytes);
     }
 }

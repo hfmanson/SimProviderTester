@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
-import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -15,13 +13,11 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
 import nl.mansoft.isoappletprovider.SimKeystore;
-import nl.mansoft.isoappletprovider.SimProvider;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SimKeystoreTest extends SimTest {
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
 
     private static void printCertificates(KeyStore ks) throws KeyStoreException, NoSuchAlgorithmException, CertificateEncodingException {
         Enumeration<String> aliases = ks.aliases();
