@@ -19,11 +19,11 @@ import java.security.SignatureSpi;
 public class SimSignature extends SignatureSpi{
     private byte[] buffer;
     private int offset;
-    private SmartcardIO smartcardIO;
+    private BaseSmartcardIO smartcardIO;
     private SimPrivateKey simPrivateKey;
     public SimSignature() {
         buffer = new byte[256];
-        smartcardIO = SmartcardIO.getInstance();
+        smartcardIO = SmartcardIOFactory.getInstance();
     }
 
     @Override

@@ -15,10 +15,10 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 
 public class SimCipher extends CipherSpi {
-    private SmartcardIO smartcardIO;
+    private BaseSmartcardIO smartcardIO;
 
     public SimCipher() {
-        smartcardIO = SmartcardIO.getInstance();
+        smartcardIO = SmartcardIOFactory.getInstance();
     }
 
     @Override

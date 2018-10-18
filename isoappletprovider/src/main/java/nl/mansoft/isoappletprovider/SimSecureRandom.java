@@ -8,11 +8,11 @@ package nl.mansoft.isoappletprovider;
 import java.security.SecureRandomSpi;
 
 public class SimSecureRandom extends SecureRandomSpi {
-    private final SmartcardIO smartcardIO;
+    private final BaseSmartcardIO smartcardIO;
 
 
     public SimSecureRandom() {
-        smartcardIO = SmartcardIO.getInstance();
+        smartcardIO = SmartcardIOFactory.getInstance();
     }
 
     @Override

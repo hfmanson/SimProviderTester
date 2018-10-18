@@ -8,6 +8,7 @@ import java.security.SecureRandom;
 import nl.mansoft.isoappletprovider.Util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class SimSecureRandomTest extends SimTest {
     public static void printRandom(byte random[]) {
@@ -55,6 +56,7 @@ public class SimSecureRandomTest extends SimTest {
 //        byte[] result = instance.engineGenerateSeed(numBytes);
         SecureRandom secureRandom = getInstance();
         byte[] result = secureRandom.generateSeed(numBytes);
+        assertNotNull(result);
         printRandom(result);
         assertEquals(numBytes, result.length);
     }

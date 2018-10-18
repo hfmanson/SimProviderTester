@@ -42,7 +42,7 @@ public class SimSignatureTest extends SimTest {
         if (alias != null) {
             SecureRandom secureRandom = SecureRandom.getInstance("SIM-PRNG");
             byte[] random = secureRandom.generateSeed(128);
-
+            assertNotNull(random);
             KeyStore ks = KeyStore.getInstance(SimKeystore.getType());
             ks.load(null, new char[] { '1', '2', '3', '4' });
             System.out.println(ks.getType());

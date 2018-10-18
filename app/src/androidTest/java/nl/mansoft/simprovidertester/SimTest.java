@@ -7,29 +7,42 @@ import static org.junit.Assert.fail;
 import java.security.Provider;
 import java.security.Security;
 
+import nl.mansoft.isoappletprovider.BaseSmartcardIO;
+import nl.mansoft.isoappletprovider.IccSmartcardIO;
 import nl.mansoft.isoappletprovider.SimProvider;
 import nl.mansoft.isoappletprovider.SmartcardIO;
 
 public class SimTest extends ActivityInstrumentationTest {
     private Provider mProvider;
-    private SmartcardIO mSmartcardIO;
+    private BaseSmartcardIO mSmartcardIO;
+
+    private void setupSmartcardIO() {
+        SmartcardIO smartcardIO;
+        smartcardIO = new SmartcardIO(mTestActivity, BaseSmartcardIO.AID_ISOAPPLET, null);
+        smartcardIO.waitReady();
+        try {
+            smartcardIO.setSessionAndOpenChannel();
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+        mSmartcardIO = smartcardIO;
+    }
+
+    private void setupIccSmartcardIO() {
+        mSmartcardIO = new IccSmartcardIO(mTestActivity, BaseSmartcardIO.AID_ISOAPPLET);
+    }
 
     @Before
     public void afterActivityLaunched() {
         super.afterActivityLaunched();
-        mSmartcardIO = new SmartcardIO(mTestActivity, SmartcardIO.AID_ISOAPPLET, null);
-        mSmartcardIO.waitReady();
-        try {
-            mSmartcardIO.setSessionAndOpenChannel();
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
+        //setupIccSmartcardIO();
+        setupSmartcardIO();
         mProvider = new SimProvider();
         Security.addProvider(mProvider);
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         mSmartcardIO.teardown();
     }
 

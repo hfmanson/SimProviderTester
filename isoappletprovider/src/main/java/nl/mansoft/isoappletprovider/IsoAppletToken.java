@@ -42,13 +42,13 @@ public class IsoAppletToken implements Token {
     private static final int DEFAULT_LE = 252;
     private static final int DEFAULT_EXTENDED_LE = 65532;
 
-    private SmartcardIO mSmartcardIO;
+    private BaseSmartcardIO mSmartcardIO;
     private TokenFile currentFile;
 
     /**
      * @param smartcardIO
      */
-    public IsoAppletToken(SmartcardIO smartcardIO) {
+    public IsoAppletToken(BaseSmartcardIO smartcardIO) {
         super();
         mSmartcardIO = smartcardIO;
     }

@@ -40,11 +40,11 @@ public class SimKeystore extends KeyStoreSpi {
     private SequenceOf<PKCS15PublicKey> pkcs15publickeys;
     private SequenceOf<PKCS15PrivateKey> pkcs15privatekeys;
     private Set<String> aliases;
-    private SmartcardIO smartcardIO;
+    private BaseSmartcardIO smartcardIO;
     private byte[] password;
     
     public SimKeystore() {
-        smartcardIO = SmartcardIO.getInstance();
+        smartcardIO = SmartcardIOFactory.getInstance();
         if (smartcardIO != null) {
             smartcardIO.mDebug = true;
         }
