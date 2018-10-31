@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 android {
-    compileSdkVersion 'Giesecke Devrient GmbH:Open Mobile API:21'
+    compileSdkVersion 22
     defaultConfig {
         applicationId "nl.mansoft.simprovidertester"
         minSdkVersion 19

@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Util {
+    private final static String TAG = Util.class.getSimpleName();
     public static String hex2(int hex) {
         return String.format("%02X", hex & 0xff);
     }
@@ -105,11 +106,11 @@ public class Util {
 //            System.out.println();
             }
         } catch (KeyStoreException ex) {
-            Logger.getLogger(SmartcardIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(SmartcardIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UnrecoverableKeyException ex) {
-            Logger.getLogger(SmartcardIO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

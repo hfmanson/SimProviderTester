@@ -20,7 +20,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion 'Giesecke Devrient GmbH:Open Mobile API:21'
+    compileSdkVersion 22
 
 
 

@@ -22,7 +22,7 @@ import javax.crypto.NoSuchPaddingException;
 import nl.mansoft.isoappletprovider.SimKeystore;
 import nl.mansoft.smartcardio.CardException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class SimCipherTest extends SimTest {
@@ -59,12 +59,7 @@ public class SimCipherTest extends SimTest {
             decryptCipher.init(Cipher.DECRYPT_MODE, privatekey);
             byte[] decrypted = decryptCipher.doFinal(encrypted);
             assertNotNull(decrypted);
-            //assertArrayEquals(decrypted, random);
-            assertEquals(decrypted.length, random.length);
-            for (int i = 0; i < random.length; i++) {
-                assertEquals(decrypted[i], random[i]);
-            }
-
+            assertArrayEquals(decrypted, random);
         }
     }
 }

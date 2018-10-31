@@ -1,5 +1,5 @@
 package nl.mansoft.isoappletprovider;
-
+/*
 import android.content.Context;
 import android.util.Log;
 
@@ -166,3 +166,4 @@ public class SmartcardIO extends BaseSmartcardIO implements SEService.CallBack {
         }
     }
 }
+*/
